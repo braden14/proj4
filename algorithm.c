@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 int numberlines = 100000; // GIVE ME LARGEST LINE VALUE
 int lineLength = 12; // GIVE ME THE TOTAL NUMBER OF LINES
@@ -92,6 +93,9 @@ char ** doLongestSub(char ** lines, int * numberlines)
 //
 int main()
 {
+	time_t current_time;
+    current_time = time(NULL);
+	
 	int * numberlines = malloc(sizeof(int));
 	char ** lines = getLines(numberlines);
 	
@@ -101,5 +105,9 @@ int main()
 	{
 		printf("%s\n", subStrings[i]);
 	}
+	
+	printf("\nStart time is %s", ctime(&current_time));
+	current_time = time(NULL);
+	printf("End time is %s\n", ctime(&current_time));
 }
 
