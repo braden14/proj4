@@ -112,15 +112,16 @@ char ** doLongestSub(char ** lines, int * numberlines)
 //
 int main()
 {
+	int i;
 	time_t current_time;
-    current_time = time(NULL);
+  current_time = time(NULL);
 
 	int * numberlines = malloc(sizeof(int));
 	char ** lines = getLines(numberlines);
 
 	char ** subStrings = doLongestSub(lines, numberlines);
 
-	for(int i = 0; i < *numberlines-1; i++)
+	for(i = 0; i < *numberlines-1; i++)
 	{
 		printf("%s\n", subStrings[i]);
 	}
