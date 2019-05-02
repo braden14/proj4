@@ -9,7 +9,7 @@
 int maxlineCount = 100; 					// GIVE ME LARGEST LINE VALUE
 int lineCount = 12; 						// GIVE ME THE TOTAL NUMBER OF LINES
 char fileName[] = "../testFile.txt"; 		// GIVE ME THE NAME OF THE FILE TO READ
-int threadCount = 3; 						// GIVE ME NUMBER OF THREADS
+int threadCount = 16; 						// GIVE ME NUMBER OF THREADS
 
 char ** subStrings;							// holds substrings
 char ** lines;								// holds full lines
