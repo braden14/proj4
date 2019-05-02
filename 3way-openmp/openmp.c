@@ -9,21 +9,22 @@
 #define MAX_LINE_LENGTH 100000					// GIVE ME LARGEST LINE VALUE
 #define LINE_COUNT 1000000									// GIVE ME THE TOTAL NUMBER OF LINES							// GIVE ME THE TOTAL NUMBER OF LINES
 
-char fileName[] = "/homes/dan/625/wiki_dump.txt"; 			// GIVE ME THE NAME OF THE FILE TO READ
+char fileName[] = "../testFile.txt"; 			// GIVE ME THE NAME OF THE FILE TO READ
 
 //
 // Function finds the longest substring in two line
 //
 char * longestSub(char * lines1, int len1, char * lines2, int len2)
 {
+	int i, j;
 	int subCount[len1][len2];
 	int length = 0;
 
 	int indexOfI;
 
-	for(int i = 0; i < len1; i++)
+	for(i = 0; i < len1; i++)
 	{
-		for (int j = 0; j < len2; j++)
+		for (j = 0; j < len2; j++)
 		{
 			if(lines1[i] == lines2[j])
 			{
