@@ -6,10 +6,10 @@
 #include <pthread.h>
 
 
-int maxlineCount = 100000; 					// GIVE ME LARGEST LINE VALUE
+int maxlineCount = 100; 					// GIVE ME LARGEST LINE VALUE
 int lineCount = 12; 						// GIVE ME THE TOTAL NUMBER OF LINES
 char fileName[] = "../testFile.txt"; 		// GIVE ME THE NAME OF THE FILE TO READ
-int threadCount = 1; 						// GIVE ME NUMBER OF THREADS
+int threadCount = 3; 						// GIVE ME NUMBER OF THREADS
 
 char ** subStrings;							// holds substrings
 char ** lines;								// holds full lines
@@ -108,46 +108,48 @@ void* doLongestSub(void * param)
 //
 int main()
 {
-	printf("start");
+	//printf("start");
 	time_t current_time;
     current_time = time(NULL);
-	printf("after time");
+	//printf("after time");
 	subStrings = malloc((lineCount) * sizeof(char*));
-
+	
 	// START MULTITHREADING
-	printf("1");
+	//printf("1");
 	pthread_t threads[threadCount];
-	printf("2");
+	//printf("2");
 	pthread_attr_t attr;
-	printf("3");
+	//printf("3");
 	pthread_attr_init(&attr);
-	printf("4");
+	//printf("4");
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-	printf("5");
-
+	//printf("5");
 	lines = malloc((lineCount) * sizeof(char*));
 	int * numberlines = malloc(sizeof(int));
-	printf("1");
+	//printf("1");
 	lines = getLines(numberlines);
-	printf("2");
+	//printf("2");
 	void * status;
 
 	int linesToProcess = lineCount/threadCount;
 	
-	args_t *args = (args_t*)malloc(sizeof(args_t));
+	//args_t *args = (args_t*)malloc(sizeof(args_t));
 	
+	//printf("\nlol\n");
+
 	int i, rc;
 	for(i = 0; i < threadCount; i++)
 	{
-		printf("loop");
+		args_t *args = (args_t*)malloc(sizeof(args_t));
+		//printf("\nloop");
 		args->start = linesToProcess * i;
 		if(i == threadCount-1)
 		{
-			args->end = linesToProcess * (i + 1) - 1;
+			args->end = lineCount - 1;
 		}
 		else
 		{
-			args->end = lineCount * (i + 1);
+			args->end = linesToProcess * (i + 1);
 		}
 		rc = pthread_create(&threads[i], &attr, doLongestSub, (void *)args);
 		if (rc)
@@ -156,22 +158,36 @@ int main()
 		}
 	}
 
+	//printf("\nafter threads start");
+
 	pthread_attr_destroy(&attr);
 
 	for (i = 0; i < threadCount; i++)
 	{
+		//printf("\nloop 2");
+
 		rc = pthread_join(threads[i], &status);
 		if (rc)
 		{
 			printf("return code from pthread_join: %d", rc);
 		}
 	}
+
+	//printf("\nafter rejoin");
+
+	
+
 	// END MULTITHREADING
 	for(i = 0; i < lineCount-1; i++)
 	{
 		printf("%s\n", subStrings[i]);
+		//exit(0);
 	}
 	
+	//printf("after print");
+
+	//exit(0);
+
 	printf("\nStart time is %s", ctime(&current_time));
 	current_time = time(NULL);
 	printf("End time is %s\n", ctime(&current_time));
