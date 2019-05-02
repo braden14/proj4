@@ -6,24 +6,23 @@
 #include <omp.h>
 
 #define NUM_THREADS 16
-#define MAX_LINE_LENGTH 100000					// GIVE ME LARGEST LINE VALUE
-#define LINE_COUNT 1000000									// GIVE ME THE TOTAL NUMBER OF LINES							// GIVE ME THE TOTAL NUMBER OF LINES
+#define MAX_LINE_LENGTH 1000000					// GIVE ME LARGEST LINE VALUE
+#define LINE_COUNT 1000000									// GIVE ME THE TOTAL NUMBER OF LINES
 
-char fileName[] = "../testFile.txt"; 			// GIVE ME THE NAME OF THE FILE TO READ
+char fileName[] = "/homes/dan/625/wiki_dump.txt"; 			// GIVE ME THE NAME OF THE FILE TO READ
 
 //
 // Function finds the longest substring in two line
 //
 char * longestSub(char * lines1, int len1, char * lines2, int len2)
 {
-	int i, j;
-	int subCount[len1][len2];
-	int length = 0;
-
-	int indexOfI;
+	printf("Entering longestSub\n");
+	int i, j, indexOfI, length = 0;
+	int ** subCount = (int **)malloc(len1 * sizeof(int *));
 
 	for(i = 0; i < len1; i++)
 	{
+		subCount[i] = (int *)malloc(len2 * sizeof(int));
 		for (j = 0; j < len2; j++)
 		{
 			if(lines1[i] == lines2[j])
@@ -55,6 +54,7 @@ char * longestSub(char * lines1, int len1, char * lines2, int len2)
 	}
 	char * result = malloc(sizeof(char)*length);
 	strncpy(result, &lines1[indexOfI - length + 1], length);
+	printf("Leaving longestSub\n");
 	return result;
 }
 
@@ -63,6 +63,7 @@ char * longestSub(char * lines1, int len1, char * lines2, int len2)
 //
 char ** getLines(int * outNumberLines)
 {
+	printf("Entering getLines\n");
 	*outNumberLines = 0;
 	FILE * file = fopen(fileName, "r");
 	char ** temp = malloc(MAX_LINE_LENGTH*sizeof(char*));
@@ -76,6 +77,7 @@ char ** getLines(int * outNumberLines)
 		strcpy(temp[*outNumberLines], lines);
 		(*outNumberLines)++;
 	}
+	printf("Leaving main\n");
 	return temp;
 }
 
@@ -84,26 +86,32 @@ char ** getLines(int * outNumberLines)
 //
 char ** doLongestSub(char ** lines, int * numberlines)
 {
+	printf("Entering doLongestSub\n");
 	int threadID, i, startIndex, endIndex;
 	char ** subStrings = malloc((*numberlines-1)*sizeof(char*));
-
+	omp_set_num_threads(NUM_THREADS);
 	#pragma omp parallel private(threadID, i, startIndex, endIndex)
 	{
 		threadID = omp_get_thread_num();
+			printf("\tStarting thread %d\n", threadID);
+
     startIndex = (threadID) * (LINE_COUNT / NUM_THREADS);
     endIndex = startIndex + (LINE_COUNT / NUM_THREADS);
 
 		if(threadID == NUM_THREADS-1)
     {
-      endIndex = LINE_COUNT;
+      endIndex = LINE_COUNT - 1;
     }
 
-		for(i = 0; i < *numberlines - 1; i++)
+			printf("\t(Thread %d) startIndex = %d\n", threadID, startIndex);
+			printf("\t(Thread %d) endIndex = %d\n", threadID, endIndex);
+
+		for(i = startIndex; i < endIndex; i++)
 		{
 			subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
 		}
 	}
-
+	printf("Leaving doLongestSub\n");
 	return subStrings;
 }
 
@@ -112,6 +120,7 @@ char ** doLongestSub(char ** lines, int * numberlines)
 //
 int main()
 {
+	printf("Entering main\n");
 	int i;
 	time_t current_time;
   current_time = time(NULL);
@@ -129,4 +138,5 @@ int main()
 	printf("\nStart time is %s", ctime(&current_time));
 	current_time = time(NULL);
 	printf("End time is %s\n", ctime(&current_time));
+	printf("Leaving main\n");
 }
