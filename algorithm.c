@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-int numberlines = 100000; // GIVE ME LARGEST LINE VALUE
-int lineLength = 12; // GIVE ME THE TOTAL NUMBER OF LINES
+int maxlineCount = 100000; // GIVE ME LARGEST LINE VALUE
+int lineCount = 12; // GIVE ME THE TOTAL NUMBER OF LINES
 char fileName[] = "testFile.txt"; // GIVE ME THE NAME OF THE FILE TO READ
 
 // 
@@ -61,12 +61,12 @@ char ** getLines(int * outNumberLines)
 {
 	*outNumberLines = 0;
 	FILE * file = fopen(fileName, "r");
-	char ** temp = malloc(numberlines*sizeof(char*));
-	char lines[lineLength];
-	while(fgets(lines, lineLength, file) != NULL)
+	char ** temp = malloc(maxlineCount*sizeof(char*));
+	char lines[lineCount];
+	while(fgets(lines, lineCount, file) != NULL)
 	{
 		int length = strlen(lines);
-		if(*outNumberLines != lineLength - 1) lines[length-3] = '\0';
+		if(*outNumberLines != lineCount - 1) lines[length-3] = '\0';
 		else lines[length-1];
 		temp[*outNumberLines] = malloc(length*sizeof(char));
 		strcpy(temp[*outNumberLines], lines);
