@@ -30,11 +30,12 @@ char * longestSub(char * lines1, int len1, char * lines2, int len2)
 	int length = 0;
 
 	int indexOfI;
-	
-	for(int i = 0; i < len1; i++)
+	int i;
+	for(i = 0; i < len1; i++)
 	{
 		subCount[i] = (int *) malloc(len2 * sizeof(int));
-		for (int j = 0; j < len2; j++)
+		int j;
+		for (j = 0; j < len2; j++)
 		{
 			if(lines1[i] == lines2[j])
 			{
