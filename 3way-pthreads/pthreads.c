@@ -24,7 +24,7 @@ typedef struct
 // 
 // Function finds the longest substring in two line
 //
-char * longestSub(char * lines1, int len1, char * lines2, int len2)s
+char * longestSub(char * lines1, int len1, char * lines2, int len2)
 {
 	int ** subCount = (int ** )malloc(sizeof(int*)*len1);
 	int length = 0;
