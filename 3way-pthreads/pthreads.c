@@ -101,6 +101,10 @@ void* doLongestSub(void * param)
 	{
 		subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
 		printf("%s\n", subStrings[i]);
+		if (i > args->start)
+		{
+			free(lines[i]);
+		}
 	}
 }
 
