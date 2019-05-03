@@ -85,8 +85,8 @@ char ** getLines(int * outNumberLines)
 	*outNumberLines = 0;
 	FILE * file = fopen(fileName, "r");
 	char ** temp = malloc(maxlineCount * sizeof(char*));
-	char lines[lineCount];
-	while (fgets(lines, lineCount, file) != NULL)
+	char lines[maxlineCount];
+	while (fgets(lines, maxlineCount, file) != NULL)
 	{
 		int length = strlen(lines);
 		if (*outNumberLines != lineCount - 1) lines[length - 3] = '\0';
