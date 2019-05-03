@@ -91,6 +91,16 @@ char ** getLines()
 	return temp;
 }
 
+int display(char ** subStrings)
+{
+	int i;
+	for (i = 0; i < LINE_COUNT - 1; i++)
+	{
+		printf("Line: %d | %s\n", i, subStrings[i]);
+	}
+	return 0;
+}
+
 //
 // Function uses longestSubstring to find longest substring of all lines
 //
@@ -135,8 +145,18 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Finalize();
+
+	int dumby;
+	if (threadRank == 0)
+	{
+		dumby = display(subStrings);
+		dumby = display(subStrings);
+	}
+
 	return subStrings;
 }
+
+
 
 //
 // main
@@ -154,11 +174,11 @@ int main(int argc, char * argv[])
 	//printf("%d/n", 4);
 	int threadRank;
 	//exit(0);
-	MPI_Comm_rank(MPI_COMM_WORLD, &threadRank);
-	for(i = 0; i < LINE_COUNT - 1; i++)
-	{
-		printf("Line: %d | %s\n", i, subStrings[i]);
-	}
+	//MPI_Comm_rank(MPI_COMM_WORLD, &threadRank);
+	//for(i = 0; i < LINE_COUNT - 1; i++)
+	//{
+	//	printf("Line: %d | %s\n", i, subStrings[i]);
+	//}
 
 	printf("\nStart time is %s", ctime(&current_time));
 	current_time = time(NULL);
