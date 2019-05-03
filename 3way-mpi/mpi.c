@@ -20,6 +20,8 @@
 #define LINE_COUNT 1000
 // Name of the file to read from
 char fileName[] = "/homes/dan/625/wiki_dump.txt";
+time_t current_time;
+
 
 //
 // Function finds the longest substring in two line
@@ -98,6 +100,10 @@ int display(char ** subStrings)
 	{
 		printf("Line: %d | %s\n", i, subStrings[i]);
 	}
+
+	printf("\nStart time is %s", ctime(&current_time));
+	current_time = time(NULL);
+	printf("End time is %s\n", ctime(&current_time));
 	return 0;
 }
 
@@ -141,15 +147,14 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 	for(i = startIndex; i < endIndex; i++)
 	{
 		subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
-		printf("On thread %d. \n\tIndex %d\n\tResult: %s\n", threadRank, i, subStrings[i]);
+		//printf("On thread %d. \n\tIndex %d\n\tResult: %s\n", threadRank, i, subStrings[i]);
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
 	//MPI_Finalize();
 
 	int dumby;
-	if (threadRank == 0)
+	if (endIndex = LINE_COUNT - 1)
 	{
-		dumby = display(subStrings);
 		dumby = display(subStrings);
 	}
 
@@ -165,7 +170,6 @@ int main(int argc, char * argv[])
 {
 	//printf("%d/n", 1);
 	int i;
-	time_t current_time;
 	current_time = time(NULL);
 	//printf("%d/n", 2);
 	char ** lines = getLines();
@@ -180,7 +184,4 @@ int main(int argc, char * argv[])
 	//	printf("Line: %d | %s\n", i, subStrings[i]);
 	//}
 
-	printf("\nStart time is %s", ctime(&current_time));
-	current_time = time(NULL);
-	printf("End time is %s\n", ctime(&current_time));
 }
