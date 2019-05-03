@@ -66,6 +66,13 @@ char * longestSub(char * lines1, int len1, char * lines2, int len2)
 	}
 	char * result = malloc(sizeof(char)*length);
 	strncpy(result, &lines1[indexOfI - length + 1], length);
+
+	for (i = 0; i < len1; i++)
+	{
+		free(subCount[i]);
+	}
+	free(subCount);
+
 	return result;
 }
 
@@ -101,10 +108,6 @@ void* doLongestSub(void * param)
 	{
 		subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
 		printf("%s\n", subStrings[i]);
-		if (i > args->start)
-		{
-			free(lines[i]);
-		}
 	}
 }
 
