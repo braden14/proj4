@@ -8,14 +8,12 @@
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 
-// Number of threads to run
-#define NUM_THREADS 16
 // Max length of a line
 #define MAX_LINE_LENGTH 1000000
 // Number of lines in a file
-#define LINE_COUNT 200
+#define LINE_COUNT 1000
 // Name of the file to read from
-char fileName[] = "../wiki_dump_small.txt";
+char fileName[] = "/homes/dan/625/wiki_dump.txt";
 
 //
 // Function finds the longest substring in two line
