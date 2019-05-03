@@ -57,103 +57,95 @@ char * longestSub(char * lines1, int len1, char * lines2, int len2)
 			}
 		}
 	}
-	for(i = 0; i < len1; i++) free(subCount[i]);
+	for(i = 0; i < len1; i++) 
+		free(subCount[i]);
 	free(subCount);
-	char * result = malloc(sizeof(char)*length);
+	char * result = malloc(sizeof(char)*(length + 1));
 	strncpy(result, &lines1[indexOfI - length + 1], length);
-
+	result[length] = '\0';
 	return result;
 }
 
 //
 // Function gets list of all lines in txt file
 //
-char ** getLines(int * outNumberLines)
+char ** getLines()
 {
-	*outNumberLines = 0;
+	int i = 0;
 	FILE * file = fopen(fileName, "r");
 	char ** temp = malloc(MAX_LINE_LENGTH*sizeof(char*));
-	char lines[MAX_LINE_LENGTH];
-	while(fgets(lines, MAX_LINE_LENGTH, file) != NULL)
+	char * line = malloc(MAX_LINE_LENGTH * sizeof(char));
+	while(fgets(line, MAX_LINE_LENGTH, file) != NULL)
 	{
-		int length = strlen(lines);
-		if(*outNumberLines != LINE_COUNT - 1) lines[length-3] = '\0';
-		else lines[length-1];
-		temp[*outNumberLines] = malloc(length*sizeof(char));
-		strcpy(temp[*outNumberLines], lines);
-		(*outNumberLines)++;
+		int length = strlen(line);
+		line[length - 1] = '\0';
+		temp[i] = malloc(length*sizeof(char));
+		strcpy(temp[i], line);
+		i++;
 	}
+	free(line);
 	return temp;
 }
 
 //
 // Function uses longestSubstring to find longest substring of all lines
 //
-char ** doLongestSub(char ** lines, int * numberlines)
+char ** doLongestSub(char ** lines, int argc, char * argv[])
 {
-	int threadID, i, startIndex, endIndex;
+	int threadRank, numTasks, i, startIndex, endIndex, rc;
+	
+	MPI_Status state;
+	MPI_Request *req = NULL;
 
-	char ** subStrings = malloc((*numberlines-1)*sizeof(char*));
-	omp_set_num_threads(NUM_THREADS);
-	#pragma omp parallel private(threadID, i, startIndex, endIndex)
+	//initializes the MPI execution environment
+	rc = MPI_Init(&argc, &argv);
+	//to handle capturing a return/error code of MPI_SUCCESS's failure [return 0]
+	if(rc != MPI_SUCCESS)
 	{
-		threadID = omp_get_thread_num();
+		printf("MPI could not start.\n");
 
-    startIndex = (threadID) * (LINE_COUNT / NUM_THREADS);
-    endIndex = startIndex + (LINE_COUNT / NUM_THREADS);
-
-		if(threadID == NUM_THREADS-1)
-    {
-      endIndex = LINE_COUNT - 1;
-    }
-
-		for(i = startIndex; i < endIndex; i++)
-		{
-			subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
-		}
+		//represents the # of MPI tasks available to app
+		MPI_Abort(MPI_COMM_WORLD, rc);
 	}
+	
+	//returns the total number of MPI processes in the specified communicator
+	MPI_Comm_size(MPI_COMM_WORLD, &numTasks);
+	//returns the rank of the calling MPI process within the specified communicator
+	MPI_Comm_rank(MPI_COMM_WORLD, &threadRank);
+	printf("\tThread rank: %d\n", threadRank);
+
+	char ** subStrings = malloc((LINE_COUNT - 1) * sizeof(char *));
+
+	startIndex = (threadRank) * (LINE_COUNT / numTasks);
+	endIndex = startIndex + (LINE_COUNT / numTasks);
+
+	if(threadRank == numTasks - 1)
+	{
+	  endIndex = LINE_COUNT - 1;
+	}
+
+	for(i = startIndex; i < endIndex; i++)
+	{
+		subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
+	}
+	
+	MPI_Finalize();
 	return subStrings;
 }
 
 //
 // main
 //
-int main()
+int main(int argc, char * argv[])
 {
-	MPI_Status state;
-	MPI_Request *req = NULL;
-
-	//variables for MPI calls
-	int rc, taskID, numTasks;
-	//initializes the MPI execution environment
-	rc = MPI_Init(&argc, &argv);
-
-	//to handle capturing a return/error code of MPI_SUCCESS's failure [return 0]
-	if(rc != MPI_SUCCESS)
-	{
-		printf("MPI could not start.\n")
-
-		//represents the # of MPI tasks available to app
-		MPI_Abort(MPI_COMM_WORLD, rc);
-	}
-
-	//returns the total number of MPI processes in the specified communicator
-	MPI_Comm_size(MPI_COMM_WORLD, &numTasks);
-	//returns the rank of the calling MPI process within the specified communicator
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
 	int i;
 	time_t current_time;
 	current_time = time(NULL);
-	//idk why fflush(stdout)
+	
+	char ** lines = getLines();
 
-
-	int * numberlines = malloc(sizeof(int));
-	char ** lines = getLines(numberlines);
-
-	char ** subStrings = doLongestSub(lines, numberlines);
-
-	for(i = 0; i < *numberlines-1; i++)
+	char ** subStrings = doLongestSub(lines, argc, argv);
+	for(i = 0; i < LINE_COUNT - 1; i++)
 	{
 		printf("%s\n", subStrings[i]);
 	}
@@ -161,8 +153,4 @@ int main()
 	printf("\nStart time is %s", ctime(&current_time));
 	current_time = time(NULL);
 	printf("End time is %s\n", ctime(&current_time));
-
-
-	//done with MPI_Init
-	MPI_Finalize();
 }
