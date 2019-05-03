@@ -9,10 +9,10 @@
 #define NUM_THREADS 16
 // Max length of a line
 #define MAX_LINE_LENGTH 1000000
-// Number of threads in a file
-#define LINE_COUNT 1000000
+// Number of lines in a file
+#define LINE_COUNT 200
 // Name of the file to read from
-char fileName[] = "/homes/dan/625/wiki_dump.txt";
+char fileName[] = "../wiki_dump_small.txt";
 
 //
 // Function finds the longest substring in two line
