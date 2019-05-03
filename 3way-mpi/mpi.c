@@ -150,14 +150,14 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 		//printf("On thread %d. \n\tIndex %d\n\tResult: %s\n", threadRank, i, subStrings[i]);
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
-	//MPI_Finalize();
+	MPI_Finalize();
 
 	int dumby;
 	if (endIndex = LINE_COUNT - 1)
 	{
 		dumby = display(subStrings);
 	}
-	MPI_Finalize();
+	//MPI_Finalize();
 
 	return subStrings;
 }
