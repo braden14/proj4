@@ -1,3 +1,9 @@
+/* To run on Beocat:
+		get rid of windows newlines on scripts
+		make sure path of shell_script_mpi.sh is right
+		compile using "mpicc mpi.c -o mpi_out"
+		./mass_mpi to queue
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -125,8 +131,9 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 	for(i = startIndex; i < endIndex; i++)
 	{
 		subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
+		//printf("On thread %d. \n\tIndex %d\n\tResult: %s\n", threadRank, i, subStrings[i]);
 	}
-	
+	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Finalize();
 	return subStrings;
 }
@@ -143,9 +150,12 @@ int main(int argc, char * argv[])
 	char ** lines = getLines();
 
 	char ** subStrings = doLongestSub(lines, argc, argv);
+	
+	int threadRank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &threadRank);
 	for(i = 0; i < LINE_COUNT - 1; i++)
 	{
-		printf("%s\n", subStrings[i]);
+		printf("Line: %d | %s\n", i, subStrings[i]);
 	}
 
 	printf("\nStart time is %s", ctime(&current_time));
