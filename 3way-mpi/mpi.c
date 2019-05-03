@@ -131,7 +131,7 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 	for(i = startIndex; i < endIndex; i++)
 	{
 		subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
-		//printf("On thread %d. \n\tIndex %d\n\tResult: %s\n", threadRank, i, subStrings[i]);
+		printf("On thread %d. \n\tIndex %d\n\tResult: %s\n", threadRank, i, subStrings[i]);
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Finalize();
@@ -143,15 +143,17 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 //
 int main(int argc, char * argv[])
 {
+	//printf("%d/n", 1);
 	int i;
 	time_t current_time;
 	current_time = time(NULL);
-	
+	//printf("%d/n", 2);
 	char ** lines = getLines();
-
+	//printf("%d/n", 3);
 	char ** subStrings = doLongestSub(lines, argc, argv);
-	
+	//printf("%d/n", 4);
 	int threadRank;
+	//exit(0);
 	MPI_Comm_rank(MPI_COMM_WORLD, &threadRank);
 	for(i = 0; i < LINE_COUNT - 1; i++)
 	{
