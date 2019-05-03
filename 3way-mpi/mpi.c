@@ -157,6 +157,7 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 	{
 		dumby = display(subStrings);
 	}
+	MPI_Finalize();
 
 	return subStrings;
 }
