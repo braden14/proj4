@@ -8,11 +8,11 @@
 // Number of threads to run
 #define NUM_THREADS 16
 // Max length of a line
-#define MAX_LINE_LENGTH 1000000
+#define MAX_LINE_LENGTH 10000
 // Number of lines in a file
-#define LINE_COUNT 200
+#define LINE_COUNT 1000000
 // Name of the file to read from
-char fileName[] = "../wiki_dump_small.txt";
+char fileName[] = "/homes/dan/625/wiki_dump.txt";
 
 //
 // Function finds the longest substring in two line
@@ -54,54 +54,55 @@ char * longestSub(char * lines1, int len1, char * lines2, int len2)
 			}
 		}
 	}
-	for(i = 0; i < len1; i++) free(subCount[i]);
+	for(i = 0; i < len1; i++) 
+		free(subCount[i]);
 	free(subCount);
-	char * result = malloc(sizeof(char)*length);
+	char * result = malloc(sizeof(char)*(length + 1));
 	strncpy(result, &lines1[indexOfI - length + 1], length);
-
+	result[length] = '\0';
 	return result;
 }
 
 //
 // Function gets list of all lines in txt file
 //
-char ** getLines(int * outNumberLines)
+char ** getLines()
 {
-	*outNumberLines = 0;
+	int i = 0;
 	FILE * file = fopen(fileName, "r");
 	char ** temp = malloc(MAX_LINE_LENGTH*sizeof(char*));
-	char lines[LINE_COUNT];
-	while(fgets(lines, LINE_COUNT, file) != NULL)
+	char * line = malloc(MAX_LINE_LENGTH * sizeof(char));
+	while(fgets(line, MAX_LINE_LENGTH, file) != NULL)
 	{
-		int length = strlen(lines);
-		if(*outNumberLines != LINE_COUNT - 1) lines[length-3] = '\0';
-		else lines[length-1];
-		temp[*outNumberLines] = malloc(length*sizeof(char));
-		strcpy(temp[*outNumberLines], lines);
-		(*outNumberLines)++;
+		int length = strlen(line);
+		line[length - 1] = '\0';
+		temp[i] = malloc(length*sizeof(char));
+		strcpy(temp[i], line);
+		i++;
 	}
+	free(line);
 	return temp;
 }
 
 //
 // Function uses longestSubstring to find longest substring of all lines
 //
-char ** doLongestSub(char ** lines, int * numberlines)
+char ** doLongestSub(char ** lines)
 {
 	int threadID, i, startIndex, endIndex;
-	char ** subStrings = malloc((*numberlines-1)*sizeof(char*));
+	char ** subStrings = malloc((LINE_COUNT - 1)*sizeof(char*));
 	omp_set_num_threads(NUM_THREADS);
 	#pragma omp parallel private(threadID, i, startIndex, endIndex)
 	{
 		threadID = omp_get_thread_num();
 
-    startIndex = (threadID) * (LINE_COUNT / NUM_THREADS);
-    endIndex = startIndex + (LINE_COUNT / NUM_THREADS);
+		startIndex = (threadID) * (LINE_COUNT / NUM_THREADS);
+		endIndex = startIndex + (LINE_COUNT / NUM_THREADS);
 
 		if(threadID == NUM_THREADS-1)
-    {
-      endIndex = LINE_COUNT - 1;
-    }
+		{
+		  endIndex = LINE_COUNT - 1;
+		}
 
 		for(i = startIndex; i < endIndex; i++)
 		{
@@ -120,12 +121,11 @@ int main()
 	time_t current_time;
   current_time = time(NULL);
 
-	int * numberlines = malloc(sizeof(int));
-	char ** lines = getLines(numberlines);
+	char ** lines = getLines();
 
-	char ** subStrings = doLongestSub(lines, numberlines);
+	char ** subStrings = doLongestSub(lines);
 
-	for(i = 0; i < *numberlines-1; i++)
+	for(i = 0; i < LINE_COUNT - 1; i++)
 	{
 		printf("%s\n", subStrings[i]);
 	}
