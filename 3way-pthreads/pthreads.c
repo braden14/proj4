@@ -64,8 +64,9 @@ char * longestSub(char * lines1, int len1, char * lines2, int len2)
 			}
 		}
 	}
-	char * result = malloc(sizeof(char)*length);
+	char * result = malloc(sizeof(char)*(1+length));
 	strncpy(result, &lines1[indexOfI - length + 1], length);
+	result[length] = '\0';
 
 	for (i = 0; i < len1; i++)
 	{
@@ -89,7 +90,7 @@ char ** getLines(int * outNumberLines)
 	{
 		int length = strlen(lines);
 		if (*outNumberLines != lineCount - 1) lines[length - 3] = '\0';
-		else lines[length - 1];
+		else lines[length - 1] = '\0';
 		temp[*outNumberLines] = malloc(length * sizeof(char));
 		strcpy(temp[*outNumberLines], lines);
 		(*outNumberLines)++;
