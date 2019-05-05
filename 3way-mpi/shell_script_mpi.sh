@@ -5,7 +5,7 @@
 #SBATCH --partition=killable.q
 #SBATCH --constraint=elves
 #SBATCH --nodes=2
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=4
 #SBATCH --job-name=3way-mpi
 
 module load OpenMPI

@@ -17,11 +17,13 @@
 // Max length of a line
 #define MAX_LINE_LENGTH 1000000
 // Number of lines in a file
-#define LINE_COUNT 1000
+#define LINE_COUNT 1000000
+#define START_PRINTING 0
+#define DONE_PRINTING 1
+#define MASTER_THREAD 0
 // Name of the file to read from
 char fileName[] = "/homes/dan/625/wiki_dump.txt";
 time_t current_time;
-
 
 //
 // Function finds the longest substring in two line
@@ -93,12 +95,12 @@ char ** getLines()
 	return temp;
 }
 
-int display(char ** subStrings)
+int display(char ** subStrings, int startIndex, int endIndex)
 {
 	int i;
-	for (i = 0; i < LINE_COUNT - 1; i++)
+	for (i = startIndex; i < endIndex; i++)
 	{
-		printf("Line: %d | %s\n", i, subStrings[i]);
+		printf("%s\n", subStrings[i]);
 	}
 
 	printf("\nStart time is %s", ctime(&current_time));
@@ -112,13 +114,15 @@ int display(char ** subStrings)
 //
 char ** doLongestSub(char ** lines, int argc, char * argv[])
 {
-	int threadRank, numTasks, i, startIndex, endIndex, rc;
-	
+	int rc;
+	char ** subStrings = malloc((LINE_COUNT - 1) * sizeof(char *));
 	MPI_Status state;
 	MPI_Request *req = NULL;
 
 	//initializes the MPI execution environment
 	rc = MPI_Init(&argc, &argv);
+	int threadRank, numTasks, i, startIndex, endIndex;
+
 	//to handle capturing a return/error code of MPI_SUCCESS's failure [return 0]
 	if(rc != MPI_SUCCESS)
 	{
@@ -134,8 +138,6 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 	MPI_Comm_rank(MPI_COMM_WORLD, &threadRank);
 	printf("\tThread rank: %d\n", threadRank);
 
-	char ** subStrings = malloc((LINE_COUNT - 1) * sizeof(char *));
-
 	startIndex = (threadRank) * (LINE_COUNT / numTasks);
 	endIndex = startIndex + (LINE_COUNT / numTasks);
 
@@ -147,42 +149,39 @@ char ** doLongestSub(char ** lines, int argc, char * argv[])
 	for(i = startIndex; i < endIndex; i++)
 	{
 		subStrings[i] = longestSub(lines[i], strlen(lines[i]), lines[i+1], strlen(lines[i+1]));
-		//printf("On thread %d. \n\tIndex %d\n\tResult: %s\n", threadRank, i, subStrings[i]);
-	}
+	}                                   
 	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Finalize();
-
-	int dumby;
-	if (endIndex = LINE_COUNT - 1)
+	int buff;
+	if (threadRank == 0)
 	{
-		dumby = display(subStrings);
+		display(subStrings, startIndex, endIndex);
+		buff = START_PRINTING;
+		for(i = 1; i < numTasks; i++)
+		{
+			MPI_Send(&buff, 1, MPI_INT, i, START_PRINTING, MPI_COMM_WORLD);
+			MPI_Recv(&buff, 1, MPI_INT, i, DONE_PRINTING, MPI_COMM_WORLD, &state);
+		}
 	}
-	//MPI_Finalize();
+	else
+	{
+		MPI_Recv(&buff, 1, MPI_INT, MASTER_THREAD, START_PRINTING, MPI_COMM_WORLD, &state);
+		display(subStrings, startIndex, endIndex);
+		buff = DONE_PRINTING;
+		MPI_Send(&buff, 1, MPI_INT, MASTER_THREAD, DONE_PRINTING, MPI_COMM_WORLD);
+	}
+	MPI_Finalize();
 
 	return subStrings;
 }
-
-
 
 //
 // main
 //
 int main(int argc, char * argv[])
 {
-	//printf("%d/n", 1);
 	int i;
 	current_time = time(NULL);
-	//printf("%d/n", 2);
 	char ** lines = getLines();
-	//printf("%d/n", 3);
 	char ** subStrings = doLongestSub(lines, argc, argv);
-	//printf("%d/n", 4);
 	int threadRank;
-	//exit(0);
-	//MPI_Comm_rank(MPI_COMM_WORLD, &threadRank);
-	//for(i = 0; i < LINE_COUNT - 1; i++)
-	//{
-	//	printf("Line: %d | %s\n", i, subStrings[i]);
-	//}
-
 }
